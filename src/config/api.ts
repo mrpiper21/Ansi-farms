@@ -1,0 +1,1 @@
+export const baseUrl = "https://ansi-farm-backend.onrender.com"
