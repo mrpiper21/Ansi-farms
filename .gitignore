@@ -36,3 +36,4 @@ yarn-error.*
 
 # typescript
 *.tsbuildinfo
+assets/json/ansi-farm-firebase-adminsdk-fbsvc-def4dfaab5.json
