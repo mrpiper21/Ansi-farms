@@ -21,6 +21,8 @@ import { Colors } from "../../../constants/Colors";
 import YouTubePlayer from "../../../components/video/youtube-card";
 import { baseUrl } from "../../../config/api";
 import { categories, pestControlArticles } from "../../../components/mock";
+import PestDetectionIcon from "../../../components/icons/PestDetectionIcon";
+import { useBottomSheet } from "../../../context/BottomSheetContext";
 
 // API Service Functions
 const fetchResources = async (category: string = "all") => {
@@ -44,7 +46,8 @@ const fetchTips = async (searchQuery: string = "") => {
 const ExploreScreen = () => {
 	const [selectedCategory, setSelectedCategory] = useState("all");
 	const [searchQuery, setSearchQuery] = useState("");
-	const navigation = useNavigation() as any
+	const navigation = useNavigation() as any;
+	const { openPestDetectionBottomSheet } = useBottomSheet();
 
 	// Fetch resources with TanStack Query
 	const {
@@ -226,122 +229,129 @@ const ExploreScreen = () => {
 	}
 
 	return (
-		<ScrollView
-			style={styles.container}
-			refreshControl={
-				<RefreshControl
-					refreshing={resourcesLoading}
-					onRefresh={refetchResources}
-					colors={[Colors.light.primary]}
-				/>
-			}
-		>
-			{/* Categories */}
+		<View style={styles.root}>
 			<ScrollView
-				horizontal
-				showsHorizontalScrollIndicator={false}
-				style={styles.categoriesContainer}
-				contentContainerStyle={styles.categoriesContent}
-			>
-				{categories.map((category) => (
-					<TouchableOpacity
-						key={category.id}
-						style={[
-							styles.categoryButton,
-							selectedCategory === category.id && styles.selectedCategory,
-						]}
-						onPress={() => handleCategoryChange(category.id)}
-					>
-						<Text
-							style={[
-								styles.categoryText,
-								selectedCategory === category.id && styles.selectedCategoryText,
-							]}
-						>
-							{category.name}
-						</Text>
-					</TouchableOpacity>
-				))}
-			</ScrollView>
-
-			{/* Resources Section */}
-			<Text style={styles.sectionTitle}>Farm Resources</Text>
-			<FlatList
-				data={resourcesData?.data || []}
-				renderItem={renderResourceItem}
-				keyExtractor={(item) => item._id}
-				scrollEnabled={false}
-				ListEmptyComponent={
-					<Text style={styles.emptyText}>No resources found</Text>
+				style={styles.container}
+				refreshControl={
+					<RefreshControl
+						refreshing={resourcesLoading}
+						onRefresh={refetchResources}
+						colors={[Colors.light.primary]}
+					/>
 				}
-			/>
+			>
+				{/* Categories */}
+				<ScrollView
+					horizontal
+					showsHorizontalScrollIndicator={false}
+					style={styles.categoriesContainer}
+					contentContainerStyle={styles.categoriesContent}
+				>
+					{categories.map((category) => (
+						<TouchableOpacity
+							key={category.id}
+							style={[
+								styles.categoryButton,
+								selectedCategory === category.id && styles.selectedCategory,
+							]}
+							onPress={() => handleCategoryChange(category.id)}
+						>
+							<Text
+								style={[
+									styles.categoryText,
+									selectedCategory === category.id && styles.selectedCategoryText,
+								]}
+							>
+								{category.name}
+							</Text>
+						</TouchableOpacity>
+					))}
+				</ScrollView>
 
-			{/* Tips Section */}
-			<Text style={styles.sectionTitle}>Daily Farming Tips</Text>
-			{tipsLoading ? (
-				<ActivityIndicator size="small" color={Colors.light.primary} />
-			) : (
+				{/* Resources Section */}
+				<Text style={styles.sectionTitle}>Farm Resources</Text>
 				<FlatList
-					data={tipsData?.data || []}
-					renderItem={renderTipItem}
+					data={resourcesData?.data || []}
+					renderItem={renderResourceItem}
 					keyExtractor={(item) => item._id}
 					scrollEnabled={false}
 					ListEmptyComponent={
-						<Text style={styles.emptyText}>
-							No tips found matching your search
-						</Text>
+						<Text style={styles.emptyText}>No resources found</Text>
 					}
 				/>
-			)}
 
-			{/* Articles Section */}
-			<View style={styles.articlesSection}>
-				<View style={styles.sectionHeader}>
-					<Text style={styles.sectionTitle}>Expert Articles</Text>
-					<TouchableOpacity
-						onPress={() => navigation.navigate('dynamicNavigator', { screen: 'articles' })}
-						style={styles.seeAllButton}
-					>
-						<Text style={styles.seeAllText}>View All</Text>
-						<MaterialIcons name="arrow-forward" size={16} color={Colors.light.primary} />
-					</TouchableOpacity>
-				</View>
-				
-				<View style={styles.articlesPreview}>
-					{pestControlArticles.slice(0, 2).map((article: any) => (
+				{/* Tips Section */}
+				<Text style={styles.sectionTitle}>Daily Farming Tips</Text>
+				{tipsLoading ? (
+					<ActivityIndicator size="small" color={Colors.light.primary} />
+				) : (
+					<FlatList
+						data={tipsData?.data || []}
+						renderItem={renderTipItem}
+						keyExtractor={(item) => item._id}
+						scrollEnabled={false}
+						ListEmptyComponent={
+							<Text style={styles.emptyText}>
+								No tips found matching your search
+							</Text>
+						}
+					/>
+				)}
+
+				{/* Articles Section */}
+				<View style={styles.articlesSection}>
+					<View style={styles.sectionHeader}>
+						<Text style={styles.sectionTitle}>Expert Articles</Text>
 						<TouchableOpacity
-							key={article.id}
-							style={styles.articlePreviewCard}
-							onPress={() => navigation.navigate('dynamicNavigator', {
-								screen: 'article-details',
-								params: { article }
-							})}
+							onPress={() => navigation.navigate('dynamicNavigator', { screen: 'articles' })}
+							style={styles.seeAllButton}
 						>
-							<Image source={{ uri: article.imageUrl }} style={styles.articlePreviewImage} />
-							<View style={styles.articlePreviewContent}>
-								<Text style={styles.articlePreviewTitle} numberOfLines={2}>
-									{article.title}
-								</Text>
-								<Text style={styles.articlePreviewExcerpt} numberOfLines={2}>
-									{article.excerpt}
-								</Text>
-								<View style={styles.articlePreviewMeta}>
-									<Text style={styles.articlePreviewAuthor}>{article.author}</Text>
-									<Text style={styles.articlePreviewReadTime}>{article.readTime}</Text>
-								</View>
-							</View>
+							<Text style={styles.seeAllText}>View All</Text>
+							<MaterialIcons name="arrow-forward" size={16} color={Colors.light.primary} />
 						</TouchableOpacity>
-					))}
+					</View>
+					
+					<View style={styles.articlesPreview}>
+						{pestControlArticles.slice(0, 2).map((article: any) => (
+							<TouchableOpacity
+								key={article.id}
+								style={styles.articlePreviewCard}
+								onPress={() => navigation.navigate('dynamicNavigator', {
+									screen: 'article-details',
+									params: { article }
+								})}
+							>
+								<Image source={{ uri: article.imageUrl }} style={styles.articlePreviewImage} />
+								<View style={styles.articlePreviewContent}>
+									<Text style={styles.articlePreviewTitle} numberOfLines={2}>
+										{article.title}
+									</Text>
+									<Text style={styles.articlePreviewExcerpt} numberOfLines={2}>
+										{article.excerpt}
+									</Text>
+									<View style={styles.articlePreviewMeta}>
+										<Text style={styles.articlePreviewAuthor}>{article.author}</Text>
+										<Text style={styles.articlePreviewReadTime}>{article.readTime}</Text>
+									</View>
+								</View>
+							</TouchableOpacity>
+						))}
+					</View>
 				</View>
-			</View>
-		</ScrollView>
+			</ScrollView>
+			<TouchableOpacity style={styles.fab} onPress={openPestDetectionBottomSheet}>
+				<PestDetectionIcon size={30} color="white" />
+			</TouchableOpacity>
+		</View>
 	);
 };
 
 const styles = StyleSheet.create({
-	container: {
+	root: {
 		flex: 1,
 		backgroundColor: Colors.light.background,
+	},
+	container: {
 		paddingHorizontal: 16,
 		paddingTop: 16,
 	},
@@ -576,6 +586,23 @@ const styles = StyleSheet.create({
 		fontSize: 12,
 		fontWeight: "500",
 		color: Colors.light.text,
+	},
+	fab: {
+		position: "absolute",
+		margin: 16,
+		right: 0,
+		bottom: 0,
+		backgroundColor: Colors.light.primary,
+		width: 56,
+		height: 56,
+		borderRadius: 28,
+		justifyContent: "center",
+		alignItems: "center",
+		elevation: 8,
+		shadowColor: "#000",
+		shadowOffset: { width: 0, height: 2 },
+		shadowOpacity: 0.25,
+		shadowRadius: 3.84,
 	},
 });
 

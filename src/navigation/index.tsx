@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import AuthNavigator from './AuthNavigator';
@@ -8,13 +8,17 @@ import useAuthStore from '../store/auth-store';
 import DynamicNavigator from './DynamicNavigator';
 import { ChatProvider } from "../context/chatContext";
 import ClientHomePage from '../screens/protected/home/client/ClientHomePage';
+import { BottomSheetProvider, useBottomSheet } from '../context/BottomSheetContext';
+import PestDetectionBottomSheet from '../components/bottom-sheets/PestDetectionBottomSheet';
 
 const Stack = createStackNavigator();
 
-const AppNavigator = () => {
-	const { user } = useAuthStore((state) => state);
+const AppContent = () => {
+	const user = useAuthStore((state) => state.user);
+	const { pestDetectionBottomSheetRef } = useBottomSheet();
+
 	return (
-		<NavigationContainer>
+		<>
 			<Stack.Navigator>
 				{user ? (
 					// Authenticated user flow
@@ -51,6 +55,19 @@ const AppNavigator = () => {
 					</>
 				)}
 			</Stack.Navigator>
+			<PestDetectionBottomSheet ref={pestDetectionBottomSheetRef} />
+		</>
+	);
+};
+
+const AppNavigator = () => {
+	return (
+		<NavigationContainer>
+			<BottomSheetProvider>
+				<ChatProvider>
+					<AppContent />
+				</ChatProvider>
+			</BottomSheetProvider>
 		</NavigationContainer>
 	);
 };

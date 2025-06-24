@@ -15,6 +15,7 @@ import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import { useNavigation } from '@react-navigation/native';
 import { Colors } from '../../../constants/Colors';
 import { pestControlArticles } from '../../../components/mock';
+import useAuthStore from '../../../store/auth-store';
 
 const ITEMS_PER_PAGE = 6;
 
@@ -24,6 +25,8 @@ const ArticlesScreen = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState('all');
+
+  const user = useAuthStore((state) => state.user);
 
   // Filter articles based on search and category
   const filteredArticles = pestControlArticles.filter(article => {
