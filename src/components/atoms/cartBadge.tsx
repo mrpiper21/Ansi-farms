@@ -4,7 +4,9 @@ import { Text, View } from 'react-native';
 import useCartStore from '../../store/cart-store';
 
 const CartTabBadge = () => {
-  const totalItems = useCartStore((state) => state.getTotalItems());
+  const totalItems = useCartStore((state) =>
+    state.items.reduce((total, item) => total + item.quantity, 0)
+  );
   
   if (totalItems === 0) {
     return null;

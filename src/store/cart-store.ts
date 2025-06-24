@@ -31,9 +31,6 @@ interface CartStore {
   removeFromCart: (productId: string) => void;
   updateQuantity: (productId: string, newQuantity: number) => void;
   clearCart: () => void;
-  getTotalItems: () => number;
-  getTotalPrice: () => number;
-  getItemQuantity: (productId: string) => number;
 }
 
 const useCartStore = create(
@@ -97,25 +94,6 @@ const useCartStore = create(
       // Empty the cart
       clearCart: () => {
         set({ items: [] });
-      },
-      
-      // Helper to get total number of items in cart
-      getTotalItems: () => {
-        return get().items.reduce((total, item) => total + item.quantity, 0);
-      },
-      
-      // Helper to calculate total price of all items in cart
-      getTotalPrice: () => {
-        return get().items.reduce(
-          (total, item) => total + item.product.price * item.quantity,
-          0
-        );
-      },
-      
-      // Helper to get quantity of a specific product in cart
-      getItemQuantity: (productId) => {
-        const item = get().items.find((item) => item.product._id === productId);
-        return item ? item.quantity : 0;
       },
     }),
     {

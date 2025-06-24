@@ -9,17 +9,26 @@ import useAuthStore from "../../../store/auth-store";
 import FontAwesome6 from "@expo/vector-icons/FontAwesome6";
 import { AntDesign } from "@expo/vector-icons";
 import { IconSymbol } from "../../../components/ui/IconSymbol";
+
 const CartScreen = () => {
-	const {
-		items,
-		addToCart,
-		removeFromCart,
-		updateQuantity,
-		clearCart,
-		getTotalItems,
-		getTotalPrice,
-		getItemQuantity,
-	} = useCartStore();
+	const items = useCartStore((state) => state.items);
+	const addToCart = useCartStore((state) => state.addToCart);
+	const removeFromCart = useCartStore((state) => state.removeFromCart);
+	const updateQuantity = useCartStore((state) => state.updateQuantity);
+	const clearCart = useCartStore((state) => state.clearCart);
+
+	const totalPrice = useCartStore((state) =>
+		state.items.reduce(
+			(total, item) => total + item.product.price * item.quantity,
+			0
+		)
+	);
+
+	const totalItems = useCartStore((state) =>
+		state.items.reduce((total, item) => total + item.quantity, 0)
+	);
+
+
 	const [isLoading, setIsLoading] = useState<boolean>(false);
 	const navigation = useNavigation() as any;
 	const { user } = useAuthStore((state) => state);
@@ -43,9 +52,9 @@ const CartScreen = () => {
 	};
 
 	const handleDecreaseQuantity = (product: Product) => {
-		const currentQuantity = getItemQuantity(product._id);
-		if (currentQuantity > 1) {
-			updateQuantity(product._id, currentQuantity - 1);
+		const itemInCart = items.find((item) => item.product._id === product._id);
+		if (itemInCart && itemInCart.quantity > 1) {
+			updateQuantity(product._id, itemInCart.quantity - 1);
 		} else {
 			removeFromCart(product._id);
 		}
@@ -78,6 +87,7 @@ const CartScreen = () => {
 
 							if (response.status === 201) {
 								Alert.alert("Success");
+								clearCart()
 							} else {
 								Alert.alert(
 									"Error",
@@ -169,13 +179,13 @@ const CartScreen = () => {
 					<View style={styles.summaryContainer}>
 						<View style={styles.summaryRow}>
 							<Text style={styles.summaryLabel}>Total Items:</Text>
-							<Text style={styles.summaryValue}>{getTotalItems()}</Text>
+							<Text style={styles.summaryValue}>{totalItems}</Text>
 						</View>
 
 						<View style={styles.summaryRow}>
 							<Text style={styles.summaryLabel}>Subtotal:</Text>
 							<Text style={styles.summaryValue}>
-								GHS{getTotalPrice().toFixed(2)}
+								GHS{totalPrice.toFixed(2)}
 							</Text>
 						</View>
 
@@ -187,7 +197,7 @@ const CartScreen = () => {
 						<View style={[styles.summaryRow, styles.totalRow]}>
 							<Text style={styles.totalLabel}>Total:</Text>
 							<Text style={styles.totalValue}>
-								GHS{getTotalPrice().toFixed(2)}
+								GHS{totalPrice.toFixed(2)}
 							</Text>
 						</View>
 

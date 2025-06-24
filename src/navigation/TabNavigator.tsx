@@ -30,7 +30,9 @@ export default function TabsNavigator() {
 	const { locationName } = useLocationStore();
 	const { user } = useAuthStore((state) => state);
 	const [searchQuery, setSearchQuery] = React.useState("");
-	const totalOrders = useCartStore.getState().getTotalItems();
+	const totalOrders = useCartStore((state) =>
+		state.items.reduce((total, item) => total + item.quantity, 0)
+	);
 
 	return (
 		<Tab.Navigator
